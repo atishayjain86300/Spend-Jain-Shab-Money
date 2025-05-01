@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spend Jaiin Shab's Money</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    h1 {
+      color: #27ae60;
+      margin-bottom: 5px;
+    }
+    #ownerName {
+      font-size: 1.2em;
+      margin-top: 5px;
+      color: #555;
+      font-weight: bold;
+    }
+    #balance {
+      font-size: 2.5em;
+      margin: 15px;
+      color: #2ecc71;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    .item {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 10px;
+      display: inline-block;
+      width: 200px;
+      background-color: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+    .item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .item img {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+    }
+    .btn {
+      margin-top: 10px;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      background-color: #27ae60;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.2s;
+    }
+    .btn:hover {
+      background-color: #2ecc71;
+    }
+    .btn:disabled {
+      background-color: #95a5a6;
+      cursor: not-allowed;
+    }
+    .count {
+      margin-top: 8px;
+      font-weight: bold;
+      color: #555;
+    }
+    #resetBtn {
+      margin: 20px auto;
+      padding: 10px 25px;
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.2s;
+    }
+    #resetBtn:hover {
+      background-color: #c0392b;
+    }
+    #summary {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: white;
+      border-radius: 10px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    /* Owner image styling */
+  /* Owner image styling */
+.owner-image-container {
+  margin: 15px auto;
+  width: 165px; /* Container width */
+  height: 160px; /* Must match width for perfect circle */
+  border-radius: 50%;
+  padding: 5px;
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.owner-image {
+  width: 150px; /* Should be container width minus (padding * 2) */
+  height: 150px; /* Must match width for perfect circle */
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid white;
+}
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .item {
+        width: 150px;
+        padding: 10px;
+      }
+      .owner-image-container {
+        width: 120px;
+        height: 120px;
+      }
+      .owner-image {
+        width: 110px;
+        height: 110px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Spend Jaiin Shab's Money</h1>
+  <div class="owner-image-container">
+    <img src="owner.jpeg" alt="Jaiin Shab" class="owner-image" />
+  </div>
+  <div id="ownerName">Owner: Atishay Jain</div>
+  <div id="balance">$113,000,000,000</div>
+  <button id="resetBtn" onclick="resetPurchases()">Reset Purchases</button>
+  
+  <div id="store"></div>
+  <div id="summary"></div>
+  
+  <button class="btn" onclick="generatePDF()" style="margin-top: 20px; padding: 10px 25px;">Download Summary PDF</button>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <script>
+    const INITIAL_BALANCE = 113000000000;
+    let balance = INITIAL_BALANCE;
+
+    const items = [
+      { name: "Big Mac", price: 3.5, image: "https://img.icons8.com/color/100/hamburger.png", count: 0 },
+      { name: "Coke", price: 1.5, image: "https://img.icons8.com/color/100/coca-cola.png", count: 0 },
+      { name: "Air Jordan", price: 180, image: "https://img.icons8.com/?size=100&id=45774&format=png&color=000000.png", count: 0 },
+      { name: "iPad Pro", price: 1700, image: "https://img.icons8.com/color/100/ipad.png", count: 0 },
+      { name: "Cinema Ticket", price: 8.5, image: "https://img.icons8.com/?size=100&id=64580&format=png&color=000000.png", count: 0 },
+      { name: "AirPods Pro", price: 159, image: "https://img.icons8.com/?size=100&id=LwJ17EVqA5Qu&format=png&color=000000.png", count: 0 },
+      { name: "iPhone 14 Pro", price: 1300, image: "https://img.icons8.com/?size=100&id=3EJkibCnndEJ&format=png&color=000000.png", count: 0 },
+      { name: "MacBook Pro", price: 2400, image: "https://img.icons8.com/?size=100&id=58025&format=png&color=000000.png", count: 0 },
+      { name: "House", price: 500000, image: "https://img.icons8.com/color/100/real-estate.png", count: 0 },
+      { name: "Villa", price: 2000000, image: "https://img.icons8.com/?size=100&id=e98ZQ91tuvto&format=png&color=000000.png", count: 0 },
+      { name: "Burj Khalifa", price: 1500000000, image: "https://img.icons8.com/?size=100&id=xuaxePVAVqlg&format=png&color=000000.png", count: 0 },
+      { name: "Taj Mahal", price: 900000000, image: "https://img.icons8.com/color/100/taj-mahal.png", count: 0 },
+      { name: "Red Forest", price: 100000000, image: "https://img.icons8.com/color/100/forest.png", count: 0 },
+      { name: "Airplane", price: 300000000, image: "https://img.icons8.com/color/100/airplane-take-off.png", count: 0 },
+      { name: "Ship", price: 500000000, image: "https://img.icons8.com/color/100/cruise-ship.png", count: 0 },
+      { name: "Private Island", price: 700000000, image: "https://img.icons8.com/color/100/island.png", count: 0 },
+      { name: "Space Experience", price: 1500000000, image: "https://img.icons8.com/color/100/space-shuttle.png", count: 0 },
+      { name: "Helicopter", price: 18000000, image: "https://img.icons8.com/color/100/helicopter.png", count: 0 },
+      { name: "Mona Lisa", price: 850000000, image: "https://img.icons8.com/color/100/portrait.png", count: 0 },
+      { name: "Twitter", price: 44000000000, image: "https://img.icons8.com/color/100/twitter.png", count: 0 },
+      { name: "Rolex", price: 15000, image: "https://img.icons8.com/?size=100&id=A3c04Fnghx1E&format=png&color=000000.png", count: 0 },
+      { name: "Gold Bar", price: 60000, image: "https://img.icons8.com/color/100/gold-bars.png", count: 0 },
+      { name: "Tank", price: 8000000, image: "https://img.icons8.com/color/100/tank.png", count: 0 },
+      { name: "Diamond Ring", price: 250000, image: "https://img.icons8.com/color/100/diamond.png", count: 0 },
+      { name: "Sports Bike", price: 18000, image: "https://img.icons8.com/color/100/motorcycle.png", count: 0 },
+      { name: "Luxury Car", price: 100000, image: "https://img.icons8.com/color/100/sedan.png", count: 0 },
+      { name: "Rolls Royce Phantom", price: 450000, image: "https://img.icons8.com/?size=100&id=17769&format=png&color=000000.png", count: 0 },
+      { name: "Royal Crown", price: 12000000, image: "https://img.icons8.com/color/100/crown.png", count: 0 },
+      { name: "Smart TV", price: 2000, image: "https://img.icons8.com/color/100/tv.png", count: 0 },
+      { name: "Electric Car", price: 50000, image: "https://img.icons8.com/?size=100&id=HJ9U3Tl8MWC7&format=png&color=000000.png", count: 0 },
+      { name: "Luxury Yacht", price: 10000000, image: "https://img.icons8.com/color/100/yacht.png", count: 0 },
+      { name: "Private Jet", price: 20000000, image: "https://img.icons8.com/?size=100&id=ctMvFkRByk6X&format=png&color=000000.png", count: 0 },
+      { name: "Ferrari", price: 250000, image: "https://img.icons8.com/?size=100&id=36720&format=png&color=000000.png", count: 0 },
+      { name: "Lamborghini", price: 350000, image: "https://img.icons8.com/color/100/lamborghini.png", count: 0 },
+      { name: "Gold Plated Phone", price: 100000, image: "https://img.icons8.com/?size=100&id=exlmsQ4lRBCU&format=png&color=000000.png", count: 0 },
+      { name: "Supercomputer", price: 5000000, image: "https://img.icons8.com/?size=100&id=gdpvL0qJo07j&format=png&color=000000.png", count: 0 },
+      { name: "Skyscraper", price: 2000000000, image: "https://img.icons8.com/?size=100&id=KkM6BR9g2DFc&format=png&color=000000.png", count: 0 },
+      { name: "Space Station", price: 30000000000, image: "https://img.icons8.com/?size=100&id=a3qFT8rZNYXI&format=png&color=000000.png", count: 0 }
+    ];
+
+    function updateBalance() {
+      document.getElementById("balance").innerText = `$${balance.toLocaleString()}`;
+    }
+
+    function renderStore() {
+      const store = document.getElementById("store");
+      store.innerHTML = "";
+      items.forEach((item, index) => {
+        const itemDiv = document.createElement("div");
+        itemDiv.className = "item";
+        itemDiv.innerHTML = 
+          `<img src="${item.image}" alt="${item.name}" />
+          <h3>${item.name}</h3>
+          <p>Price: $${item.price.toLocaleString()}</p>
+          <button class="btn" onclick="buyItem(${index})">Buy</button>
+          <div class="count">Bought: <span id="count-${index}">${item.count}</span></div>`;
+        store.appendChild(itemDiv);
+      });
+    }
+
+    function buyItem(index) {
+      const item = items[index];
+      if (balance >= item.price) {
+        balance -= item.price;
+        item.count++;
+        updateBalance();
+        document.getElementById(`count-${index}`).innerText = item.count;
+      } else {
+        alert("Not enough money!");
+      }
+    }
+
+    function resetPurchases() {
+      balance = INITIAL_BALANCE;
+      items.forEach((item, index) => {
+        item.count = 0;
+        document.getElementById(`count-${index}`).innerText = 0;
+      });
+      updateBalance();
+      document.getElementById("summary").innerHTML = "";
+    }
+
+    function generatePDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      let totalSpent = 0;
+      let totalItems = 0;
+      const name = prompt("Enter your name:") || "Anonymous";
+
+      doc.setFontSize(18);
+      doc.text(`Spending Summary - ${name}`, 10, 20);
+      doc.setFontSize(12);
+
+      // Generate the table
+      const tableData = items
+        .filter(item => item.count > 0)
+        .map(item => ({
+          item: item.name,
+          quantity: item.count,
+          price: `$${(item.price * item.count).toLocaleString()}`
+        }));
+
+      doc.autoTable({
+        head: [['Item', 'Quantity', 'Price']],
+        body: tableData.map(item => [item.item, item.quantity, item.price]),
+        startY: 30,
+        theme: 'grid'
+      });
+
+      // Add summary
+      totalItems = tableData.reduce((sum, item) => sum + item.quantity, 0);
+      totalSpent = tableData.reduce((sum, item) => sum + parseFloat(item.price.replace(/\D/g, '')), 0);
+
+      doc.setFontSize(14);
+      doc.text(`Total Items: ${totalItems}`, 10, doc.lastAutoTable.finalY + 10);
+      doc.text(`Total Spent: $${totalSpent.toLocaleString()}`, 10, doc.lastAutoTable.finalY + 20);
+
+      doc.save(`Spending_Summary_${name.replace(/\s+/g, '_')}.pdf`);
+    }
+
+    // Initialize the page
+    updateBalance();
+    renderStore();
+  </script>
+</body>
+</html>
